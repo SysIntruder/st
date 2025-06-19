@@ -5,8 +5,11 @@
  *
  * font: see http://freedesktop.org/software/fontconfig/fontconfig-user.html
  */
-static char *font = "Terminus (TTF):pixelsize=12:antialias=true:autohint=true";
-static int borderpx = 2;
+// static char *font = "Terminus (TTF):pixelsize=12:antialias=true:autohint=true";
+// static char *font = "Fixedsys Excelsior:pixelsize=14:antialias=true:autohint=true";
+// static char *font = "ProggyCleanTTSZ:size=12:antialias=true:autohint=true";
+static char *font = "Cozette:pixelsize=12:antialias=false:autohint=true";
+static int borderpx = 10;
 
 /*
  * What program is execed by st depends of these precedence rules:
