@@ -179,7 +179,7 @@ static int evcol(XEvent *);
 static int evrow(XEvent *);
 
 static void loadresource(XrmDatabase db, char *name, enum resourcetype type, void *dst);
-static void loadxresources(void);
+static void loadxresources(Display *dpy);
 
 static void expose(XEvent *);
 static void visibility(XEvent *);
@@ -1179,24 +1179,20 @@ void loadresource(XrmDatabase db, char *name, enum resourcetype rtype, void *dst
 	}
 }
 
-void loadxresources(void)
+void loadxresources(Display *dpy)
 {
-	Display *display;
 	char *resm;
 	XrmDatabase db;
 	ResourcePref *p;
 
-	display = XOpenDisplay(NULL);
-	if (display) {
-		resm = XResourceManagerString(display);
+	if (dpy) {
+		resm = XResourceManagerString(dpy);
 		if (resm) {
 			db = XrmGetStringDatabase(resm);
 			for (p = resources; p < resources + LENGTH(resources); p++)
 				loadresource(db, p->name, p->type, p->dst);
 		}
-
 	}
-	XCloseDisplay(display);
 }
 
 void
@@ -1211,7 +1207,7 @@ xinit(int cols, int rows)
 	if (!(xw.dpy = XOpenDisplay(NULL)))
 		die("can't open display\n");
 	XrmInitialize();
-	loadxresources();
+	loadxresources(xw.dpy);
 	xw.scr = XDefaultScreen(xw.dpy);
 	xw.vis = XDefaultVisual(xw.dpy, xw.scr);
 
