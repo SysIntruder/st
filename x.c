@@ -14,12 +14,17 @@
 #include <X11/keysym.h>
 #include <X11/Xft/Xft.h>
 #include <X11/XKBlib.h>
+#include <X11/Xresource.h>
 
 char *argv0;
 #include "arg.h"
 #include "st.h"
 #include "win.h"
 #include "hb.h"
+
+#define LENGTH(X) (sizeof (X) / sizeof (X)[0])
+
+enum resourcetype { XresInteger, XresString, XresFloat };
 
 /* types used in config.h */
 typedef struct {
@@ -45,6 +50,12 @@ typedef struct {
 	signed char appkey;    /* application keypad */
 	signed char appcursor; /* application cursor */
 } Key;
+
+typedef struct {
+	char *name;
+	enum resourcetype type;
+	void *dst;
+} ResourcePref;
 
 /* X modifiers */
 #define XK_ANY_MOD    UINT_MAX
@@ -166,6 +177,9 @@ static void xsetenv(void);
 static void xseturgency(int);
 static int evcol(XEvent *);
 static int evrow(XEvent *);
+
+static void loadresource(XrmDatabase db, char *name, enum resourcetype type, void *dst);
+static void loadxresources(void);
 
 static void expose(XEvent *);
 static void visibility(XEvent *);
@@ -1133,6 +1147,58 @@ xicdestroy(XIC xim, XPointer client, XPointer call)
 	return 1;
 }
 
+void loadresource(XrmDatabase db, char *name, enum resourcetype rtype, void *dst)
+{
+	char **sdst = NULL;
+	int *idst = NULL;
+	float *fdst = NULL;
+	char fullname[256];
+	char *type;
+	XrmValue ret;
+
+	sdst = dst;
+	idst = dst;
+	fdst = dst;
+
+	snprintf(fullname, sizeof(fullname), "%s.%s", "st", name);
+	fullname[sizeof(fullname) - 1] = '\0';
+
+	XrmGetResource(db,  fullname, "*", &type, &ret);
+	if (!(ret.addr == NULL || strncmp("String", type, 64))) {
+		switch (rtype) {
+		case XresInteger:
+			*idst = strtoul(ret.addr, NULL, 10);
+			break;
+		case XresString:
+			*sdst = ret.addr;
+			break;
+		case XresFloat:
+			*fdst = strtof(ret.addr, NULL);
+			break;
+		}
+	}
+}
+
+void loadxresources(void)
+{
+	Display *display;
+	char *resm;
+	XrmDatabase db;
+	ResourcePref *p;
+
+	display = XOpenDisplay(NULL);
+	if (display) {
+		resm = XResourceManagerString(display);
+		if (resm) {
+			db = XrmGetStringDatabase(resm);
+			for (p = resources; p < resources + LENGTH(resources); p++)
+				loadresource(db, p->name, p->type, p->dst);
+		}
+
+	}
+	XCloseDisplay(display);
+}
+
 void
 xinit(int cols, int rows)
 {
@@ -1144,6 +1210,8 @@ xinit(int cols, int rows)
 
 	if (!(xw.dpy = XOpenDisplay(NULL)))
 		die("can't open display\n");
+	XrmInitialize();
+	loadxresources();
 	xw.scr = XDefaultScreen(xw.dpy);
 	xw.vis = XDefaultVisual(xw.dpy, xw.scr);
 

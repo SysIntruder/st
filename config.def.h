@@ -77,11 +77,11 @@ static unsigned int cursorthickness = 2;
  *    Bold affects lines thickness if boxdraw_bold is not 0. Italic is ignored.
  * 0: disable (render all U25XX glyphs normally from the font).
  */
-const int boxdraw = 0;
-const int boxdraw_bold = 0;
+const int boxdraw = 1;
+const int boxdraw_bold = 1;
 
 /* braille (U28XX):  1: render as adjacent "pixels",  0: use font */
-const int boxdraw_braille = 0;
+const int boxdraw_braille = 1;
 
 /*
  * bell volume. It must be a value between -100 and 100. Use 0 for disabling
@@ -110,7 +110,7 @@ char *termname = "st-256color";
 unsigned int tabspaces = 8;
 
 /* Terminal colors (16 first used in escape sequence) */
-static const char *colorname[] = {
+static const char *colorname[]  = {
 	/* 8 normal colors */
 	"black",
 	"red3",
@@ -139,7 +139,6 @@ static const char *colorname[] = {
 	"gray90", /* default foreground colour */
 	"black", /* default background colour */
 };
-
 
 /*
  * Default colors (colorname index)
@@ -185,6 +184,33 @@ static unsigned int defaultattr = 11;
  * modifier, set to 0 to not use it.
  */
 static uint forcemousemod = ShiftMask;
+
+/* Xresources preferences to load at startup */
+ResourcePref resources[] = {
+	{ "borderpx",    XresInteger, &borderpx },
+	{ "cwscale",     XresFloat,   &cwscale },
+	{ "chscale",     XresFloat,   &chscale },
+	{ "normblack",   XresString,  &colorname[0] },
+	{ "normred",     XresString,  &colorname[1] },
+	{ "normgreen",   XresString,  &colorname[2] },
+	{ "normyellow",  XresString,  &colorname[3] },
+	{ "normblue",    XresString,  &colorname[4] },
+	{ "normmagenta", XresString,  &colorname[5] },
+	{ "normcyan",    XresString,  &colorname[6] },
+	{ "normwhite",   XresString,  &colorname[7] },
+	{ "briblack",    XresString,  &colorname[8] },
+	{ "brired",      XresString,  &colorname[9] },
+	{ "brigreen",    XresString,  &colorname[10] },
+	{ "briyellow",   XresString,  &colorname[11] },
+	{ "briblue",     XresString,  &colorname[12] },
+	{ "brimagenta",  XresString,  &colorname[13] },
+	{ "bricyan",     XresString,  &colorname[14] },
+	{ "briwhite",    XresString,  &colorname[15] },
+	{ "defcs",       XresString,  &colorname[256] },
+	{ "defrcs",      XresString,  &colorname[257] },
+	{ "deffg",       XresString,  &colorname[258] },
+	{ "defbg",       XresString,  &colorname[259] },
+};
 
 /*
  * Internal mouse shortcuts.
