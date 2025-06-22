@@ -187,6 +187,7 @@ ResourcePref resources[] = {
 	{ "borderpx",    XresInteger, &borderpx },
 	{ "cwscale",     XresFloat,   &cwscale },
 	{ "chscale",     XresFloat,   &chscale },
+	{ "font",        XresString,  &font },
 	{ "normblack",   XresString,  &colorname[0] },
 	{ "normred",     XresString,  &colorname[1] },
 	{ "normgreen",   XresString,  &colorname[2] },
