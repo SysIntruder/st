@@ -24,7 +24,7 @@ char *argv0;
 
 #define LENGTH(X) (sizeof (X) / sizeof (X)[0])
 
-enum resourcetype { XresInteger, XresString, XresFloat };
+enum resourcetype { XresInteger, XresStringPtr, XresFloat };
 
 /* types used in config.h */
 typedef struct {
@@ -1149,14 +1149,14 @@ xicdestroy(XIC xim, XPointer client, XPointer call)
 
 void loadresource(XrmDatabase db, char *name, enum resourcetype rtype, void *dst)
 {
-	char **sdst = NULL;
+	char **psdst = NULL;
 	int *idst = NULL;
 	float *fdst = NULL;
 	char fullname[256];
 	char *type;
 	XrmValue ret;
 
-	sdst = dst;
+	psdst = dst;
 	idst = dst;
 	fdst = dst;
 
@@ -1169,8 +1169,8 @@ void loadresource(XrmDatabase db, char *name, enum resourcetype rtype, void *dst
 		case XresInteger:
 			*idst = strtoul(ret.addr, NULL, 10);
 			break;
-		case XresString:
-			*sdst = ret.addr;
+		case XresStringPtr:
+			*psdst = ret.addr;
 			break;
 		case XresFloat:
 			*fdst = strtof(ret.addr, NULL);
